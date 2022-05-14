@@ -2,6 +2,26 @@ import React from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Image, StatusBar, FlatList, RefreshControl, ScrollView } from 'react-native';
 import { Card } from 'react-native-elements';
 import AntDesign from 'react-native-vector-icons/AntDesign';
+import { FloatingAction } from "react-native-floating-action";
+
+const actions = [
+    {
+      text: "Cart",
+    //   icon: require("../images/gallery.png"),
+      name: "Cart",
+      position: 1,
+      color: "orange",
+    //   textStyle:{fontFamily:'PlayfairDisplay-SemiBold'}
+    },
+    {
+      text: "My Order",
+    //   icon: require("../images/camera.png"),
+      name: "My Order",
+      position: 2,
+      color: "orange",
+    //   textStyle:{fontFamily:'PlayfairDisplay-SemiBold',color:'#2196F3'}
+    },
+];
 
 export default class PizzaBuilder extends React.Component{
     constructor(props){
@@ -9,11 +29,11 @@ export default class PizzaBuilder extends React.Component{
         this.state = {
             refreshing: false,
             list: [
-                {"id":1,"item":"Onion","price":10,image:require("../images/onion.jpeg")},
-                {"id":2,"item":"Cheese","price":20,image:require("../images/cheese.jpeg")},
-                {"id":3,"item":"Roasted Garlic","price":10,image:require("../images/garlic.jpeg")},
-                {"id":4,"item":"Tomato","price":10,image:require("../images/tomato.jpeg")},
-                {"id":5,"item":"Spinch","price":10,image:require("../images/spinch.jpg")}
+                {id:1,item:"Onion",price:8,image:require("../images/onion.jpeg")},
+                {id:2,item:"Cheese",price:20,image:require("../images/cheese.jpeg")},
+                {id:3,item:"Roasted Garlic",price:10,image:require("../images/garlic.jpeg")},
+                {id:4,item:"Tomato",price:15,image:require("../images/tomato.jpeg")},
+                {id:5,item:"Spinch",price:13,image:require("../images/spinch.jpg")}
             ],
             itemCount: 0
         }
@@ -34,7 +54,8 @@ export default class PizzaBuilder extends React.Component{
 
     render(){
         return(
-            <View>
+            <View style={{height: "100%"}}>
+                <View style={{height: "90%"}}>
                 <StatusBar barStyle = "default" hidden={true} backgroundColor = "orange"/>
                
                 <Image 
@@ -43,9 +64,8 @@ export default class PizzaBuilder extends React.Component{
                 />
 
                 <Text style={styles.headerText}>Customize Your Pizza</Text>
-                {/* <ScrollView nestedScrollEnabled={true}> */}
-                <View style={styles.itemStyle}>
                 
+                {/* Ingredients List */}
                     <FlatList 
                         keyExtractor={(item,i) => item}
                         data={this.state.list}
@@ -76,21 +96,39 @@ export default class PizzaBuilder extends React.Component{
                                         <Text style={styles.listItemTextStyle} numberOfLines={2}>{item.item} @Rs.{item.price}</Text>
                                     </Card>
                                 </View>
-                             
+                        
                             );
                         }}
                     />
+                {/* Ingredients List */}
+
+
+                {/* FloatingAction Button */}
+                <FloatingAction
+                    color="#2196F3"
+                    actions={actions}
+                    // floatingIcon={require("../images/camera.png")}
+                    dismissKeyboardOnPress={true}
+                    onPressItem={name => { 
+                        if(name == "My Order"){
+                            this.props.navigation.navigate('MyOrder');
+                        }else if(name == "Cart"){
+                            this.props.navigation.navigate('Cart');
+                        }else{}
+                    }}  
                     
-                    
-                    
-                </View>
-                {/* </ScrollView> */}
+                />   
+                {/* FloatingAction Button */}
+                </View> 
+
+                {/* Add To Cart Button */}
                 <TouchableOpacity style={styles.cartButtonStyle}>
                         <View style={{flexDirection: 'row',alignItems: 'center', justifyContent:'center'}}>
                             <Text style={styles.cartButtonText}>Add to Cart </Text>
                             <AntDesign name="shoppingcart" size={22} color="white"/>
                         </View>
                 </TouchableOpacity>
+                {/* Add To Cart Button */}
             </View>
         );
     }
