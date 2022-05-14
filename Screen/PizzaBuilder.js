@@ -11,7 +11,7 @@ const actions = [
       name: "Cart",
       position: 1,
       color: "orange",
-    //   textStyle:{fontFamily:'PlayfairDisplay-SemiBold'}
+      textStyle:{fontFamily:'PlayfairDisplay-SemiBold'}
     },
     {
       text: "My Order",
@@ -19,7 +19,7 @@ const actions = [
       name: "My Order",
       position: 2,
       color: "orange",
-    //   textStyle:{fontFamily:'PlayfairDisplay-SemiBold',color:'#2196F3'}
+      textStyle:{fontFamily:'PlayfairDisplay-SemiBold'}
     },
 ];
 
@@ -137,10 +137,10 @@ export default class PizzaBuilder extends React.Component{
 const styles = StyleSheet.create({
     headerText: {
         fontSize: 30,
-        fontWeight:"bold",
+        // fontWeight:"bold",
         margin: 10,
         color: "black",
-        
+        fontFamily:'PlayfairDisplay-Bold'
     },
     itemStyle: {
         margin: 10,
@@ -180,7 +180,7 @@ const styles = StyleSheet.create({
     listItemTextStyle: {
         color: 'black',
         fontSize: 15,
-        fontWeight: 'bold'
+        fontFamily:'PlayfairDisplay-SemiBold'
     },
     cartButtonStyle: {
         padding: 10,
@@ -191,7 +191,7 @@ const styles = StyleSheet.create({
     },
     cartButtonText: {
         color: 'white',  
-        fontWeight: 'bold', 
+        fontFamily:'PlayfairDisplay-SemiBold', 
         fontSize: 18
     }
 });

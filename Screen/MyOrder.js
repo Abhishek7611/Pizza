@@ -12,7 +12,8 @@ export default class MyOrder extends React.Component{
     render(){
         return(
             <View>
-                <Text>My Order</Text>
+                <StatusBar barStyle = "default" hidden={false} backgroundColor = "orange"/>
+                
             </View>
         );
     }

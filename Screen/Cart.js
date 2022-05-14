@@ -12,8 +12,19 @@ export default class Cart extends React.Component{
     render(){
         return(
             <View>
-                <Text>Cart</Text>
+                <StatusBar barStyle = "default" hidden={false} backgroundColor = "orange"/>
+                <Text style={styles.headerStyle}>Looks like you are not hungry.</Text>
             </View>
         );
     }
 }
+
+const styles = StyleSheet.create({
+    headerStyle: {
+        fontSize: 25,
+        // fontWeight: 'bold',
+        color: 'black',
+        margin: 10,
+        fontFamily:'PlayfairDisplay-SemiBold'
+    }
+});

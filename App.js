@@ -1,11 +1,12 @@
 import 'react-native-gesture-handler';
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import PizzaBuilder from './Screen/PizzaBuilder';
 import MyOrder from './Screen/MyOrder';
 import Cart from './Screen/Cart';
+import AntDesign from 'react-native-vector-icons/AntDesign';
 
 const Stack = createStackNavigator();
 const MyTheme = {
@@ -31,12 +32,47 @@ export default class App extends React.Component{
         <Stack.Screen
             name="MyOrder"
             component={MyOrder}
-            options={{headerShown: false}} 
+            options={({navigation})=>({
+              title:"My Order",
+              headerStyle:{
+                backgroundColor:"orange",
+              },
+              headerTitleStyle:{
+              color:"#FFFFFF",
+              fontFamily:'PlayfairDisplay-SemiBold'
+              },
+            headerLeft:() =>(
+              <TouchableOpacity accessibilityLabel='back' onPress={() =>{navigation.goBack()}}>
+                <AntDesign name="arrowleft" size={30} color="#FFFFFF" />
+              </TouchableOpacity>
+            ),
+            headerLeftContainerStyle:{
+              marginStart:10
+            }
+            })}
         />
         <Stack.Screen
             name="Cart"
             component={Cart}
-            options={{headerShown: false}} 
+            options={({navigation})=>({
+              title:"My Cart",
+              headerStyle:{
+                backgroundColor:"orange",
+              },
+              headerTitleStyle:{
+              color:"#FFFFFF",
+              fontFamily:'PlayfairDisplay-SemiBold'
+              },
+            headerLeft:() =>(
+              <TouchableOpacity accessibilityLabel='back' onPress={() =>{navigation.goBack()}}>
+                <AntDesign name="arrowleft" size={30} color="#FFFFFF" />
+              </TouchableOpacity>
+            ),
+            headerLeftContainerStyle:{
+              marginStart:10
+            }
+            })}
+            
         />
           
         </Stack.Navigator>
