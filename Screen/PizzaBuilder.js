@@ -1,8 +1,10 @@
 import React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Image, StatusBar, FlatList, RefreshControl, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Image, StatusBar, FlatList, RefreshControl, ScrollView, ToastAndroid } from 'react-native';
 import { Card } from 'react-native-elements';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import { FloatingAction } from "react-native-floating-action";
+import CheckBox from '@react-native-community/checkbox';
+var cartValue = 0;
 
 const actions = [
     {
@@ -23,21 +25,37 @@ const actions = [
     },
 ];
 
+const list = [
+    {id:0,item:"Onion",price:8,image:require("../images/onion.jpeg"),checked:false},
+    {id:1,item:"Cheese",price:20,image:require("../images/cheese.jpeg"),checked:false},
+    {id:2,item:"Roasted Garlic",price:10,image:require("../images/garlic.jpeg"),checked:false},
+    {id:3,item:"Tomato",price:15,image:require("../images/tomato.jpeg"),checked:false},
+    {id:4,item:"Spinch",price:13,image:require("../images/spinch.jpg"),checked:false}
+];
+
 export default class PizzaBuilder extends React.Component{
     constructor(props){
         super(props);
         this.state = {
             refreshing: false,
-            list: [
-                {id:1,item:"Onion",price:8,image:require("../images/onion.jpeg")},
-                {id:2,item:"Cheese",price:20,image:require("../images/cheese.jpeg")},
-                {id:3,item:"Roasted Garlic",price:10,image:require("../images/garlic.jpeg")},
-                {id:4,item:"Tomato",price:15,image:require("../images/tomato.jpeg")},
-                {id:5,item:"Spinch",price:13,image:require("../images/spinch.jpg")}
-            ],
-            itemCount: 0
+            list:list,
+            cartValue: 0,
+            checkBoxValue: false
         }
     }
+
+// Check Box.
+
+    checkThisBox=(itemID)=>{
+        let list=this.state.list
+        list[itemID].checked=!list[itemID].checked
+        this.setState({list:list})
+        if( this.state.list[itemID].checked == true ){
+            cartValue += this.state.list[itemID].price
+        }else{
+            cartValue -= this.state.list[itemID].price
+        }
+     }
 
     
 // Refreshing.
@@ -50,6 +68,13 @@ export default class PizzaBuilder extends React.Component{
         }catch(e){
             alert("Error in refresh.")
         }
+    }
+
+// Add to Cart.
+
+    addToCart(){
+        console.log(cartValue)
+        ToastAndroid.show("Total is : "+cartValue,ToastAndroid.SHORT)
     }
 
     render(){
@@ -67,7 +92,7 @@ export default class PizzaBuilder extends React.Component{
                 
                 {/* Ingredients List */}
                     <FlatList 
-                        keyExtractor={(item,i) => item}
+                        keyExtractor={(item,i) => i}
                         data={this.state.list}
                         refreshing={this.state.refreshing}
                         onRefresh={this.onRefresh}
@@ -78,16 +103,14 @@ export default class PizzaBuilder extends React.Component{
                         // inverted
                         renderItem={({item,i}) => {
                             return(
-                                <View style={{flex:1/2}} key={item.id}>
+                                <View style={{flex:1/2}} key={i}>
                                     <Card containerStyle={styles.cardContainer}>
                                         <View style={{flexDirection:'row',alignSelf:'flex-end'}}> 
-                                            <TouchableOpacity style={styles.cardTitle} onPress={()=>{}}>
-                                                <AntDesign name="plussquareo" size={22} color="orange"/>
-                                            </TouchableOpacity>
-                                            <Text style={{color: 'black'}}> {this.state.itemCount}</Text>
-                                            <TouchableOpacity style={styles.cardTitle} onPress={()=>{}}>
-                                                <AntDesign name="minussquareo" size={22} color="#2196F3"/>
-                                            </TouchableOpacity>
+                                            <CheckBox
+                                                // disabled={false}
+                                                value={this.state.list[item.id].checked}
+                                                onValueChange={(newValue) => this.checkThisBox(item.id)}
+                                            />
                                         </View>   
                                         <Image 
                                             source={item.image}
@@ -107,7 +130,6 @@ export default class PizzaBuilder extends React.Component{
                 <FloatingAction
                     color="#2196F3"
                     actions={actions}
-                    // floatingIcon={require("../images/camera.png")}
                     dismissKeyboardOnPress={true}
                     onPressItem={name => { 
                         if(name == "My Order"){
@@ -122,7 +144,7 @@ export default class PizzaBuilder extends React.Component{
                 </View> 
 
                 {/* Add To Cart Button */}
-                <TouchableOpacity style={styles.cartButtonStyle}>
+                <TouchableOpacity style={styles.cartButtonStyle} onPress={()=>{this.addToCart()}}>
                         <View style={{flexDirection: 'row',alignItems: 'center', justifyContent:'center'}}>
                             <Text style={styles.cartButtonText}>Add to Cart </Text>
                             <AntDesign name="shoppingcart" size={22} color="white"/>
@@ -185,13 +207,13 @@ const styles = StyleSheet.create({
     cartButtonStyle: {
         padding: 10,
         backgroundColor: "orange",
-        borderRadius: 5,
+        borderRadius: 45,
         height: 45,
         margin: 10
     },
     cartButtonText: {
         color: 'white',  
-        fontFamily:'PlayfairDisplay-SemiBold', 
+        fontFamily:'PlayfairDisplay-Bold', 
         fontSize: 18
     }
 });
