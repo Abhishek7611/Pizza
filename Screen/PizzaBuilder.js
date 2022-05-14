@@ -4,7 +4,9 @@ import { Card } from 'react-native-elements';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import { FloatingAction } from "react-native-floating-action";
 import CheckBox from '@react-native-community/checkbox';
-var cartValue = 0;
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+var cartValue = 0, items = [];
 
 const actions = [
     {
@@ -52,8 +54,10 @@ export default class PizzaBuilder extends React.Component{
         this.setState({list:list})
         if( this.state.list[itemID].checked == true ){
             cartValue += this.state.list[itemID].price
+            items.push(this.state.list[itemID].item)
         }else{
             cartValue -= this.state.list[itemID].price
+            items.pop(this.state.list[itemID].item)
         }
      }
 
@@ -64,6 +68,7 @@ export default class PizzaBuilder extends React.Component{
         try{
             this.setState({refreshing:true})
             // await this.fetchFiles();
+            this.setState({list: list})
             this.setState({refreshing:false})
         }catch(e){
             alert("Error in refresh.")
@@ -72,10 +77,29 @@ export default class PizzaBuilder extends React.Component{
 
 // Add to Cart.
 
-    addToCart(){
-        console.log(cartValue)
-        ToastAndroid.show("Total is : "+cartValue,ToastAndroid.SHORT)
+    addToCart = async() =>{
+        // console.log(cartValue)
+        // ToastAndroid.show("Total is : "+cartValue,ToastAndroid.SHORT)
+        if(cartValue == 0){
+            alert("Please choose items.")
+        }else{
+            await this.storeData(items.toString())
+            await this.props.navigation.navigate('Cart')
+        }
     }
+
+// Storing Selected item to Cart.
+
+    storeData = async (value) => {
+        try {
+          await AsyncStorage.setItem('ingredients', value)
+          await AsyncStorage.setItem('cartValue', JSON.stringify(50+cartValue))
+        } catch (e) {
+          // saving error
+          console.log(e)
+          alert(e)
+        }
+      }
 
     render(){
         return(
