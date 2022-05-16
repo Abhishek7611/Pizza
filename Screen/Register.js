@@ -1,8 +1,9 @@
 import React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Image, StatusBar, FlatList, RefreshControl, ScrollView, Platform, TextInput } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Image, StatusBar, FlatList, RefreshControl, ScrollView, Platform, TextInput, ToastAndroid } from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Feather from 'react-native-vector-icons/Feather';
 import * as Animatable from 'react-native-animatable';
+import database from '@react-native-firebase/database';
 
 export default class Register extends React.Component{
     constructor(props){
@@ -10,6 +11,24 @@ export default class Register extends React.Component{
         this.state = {
 
         }
+    }
+
+// Register.
+    
+    regiter(){
+        var {user_input_email,user_input_password} = this.state;
+        console.log(user_input_email,user_input_password)
+        database()
+        .ref('/Users/'+user_input_email)
+        .set({
+            key: user_input_email,
+            password: user_input_password,
+        })
+        .then(() => {
+            console.log('Registered.');
+            ToastAndroid.show("Successfully Registered...",ToastAndroid.SHORT)
+            this.props.navigation.navigate('Login')
+        });
     }
 
     render(){
@@ -42,6 +61,7 @@ export default class Register extends React.Component{
                                 color: 'black',
                                 fontFamily:'PlayfairDisplay-SemiBold'
                             }]}
+                            onChangeText={user_input_email => this.setState({user_input_email})}
                         />
                     </View>
 
@@ -63,13 +83,14 @@ export default class Register extends React.Component{
                                 color: 'black',
                                 fontFamily:'PlayfairDisplay-SemiBold'
                             }]}
+                            onChangeText={user_input_password => this.setState({user_input_password})}
                         />
                     </View>
                     
 
                     <View style={styles.button}>
                         <TouchableOpacity
-                            onPress={() => {}}
+                            onPress={() => {this.regiter()}}
                             style={[styles.signIn, {
                                 borderColor: 'orange',
                                 borderWidth: 1,

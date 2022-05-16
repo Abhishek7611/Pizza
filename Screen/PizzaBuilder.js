@@ -1,10 +1,12 @@
 import React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Image, StatusBar, FlatList, RefreshControl, ScrollView, ToastAndroid } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Image, StatusBar, FlatList, RefreshControl, ScrollView, ToastAndroid, ImageBackground } from 'react-native';
 import { Card } from 'react-native-elements';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import { FloatingAction } from "react-native-floating-action";
 import CheckBox from '@react-native-community/checkbox';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import database from '@react-native-firebase/database';
+import Login from './Login';
 
 var cartValue = 0, items = [];
 
@@ -42,9 +44,30 @@ export default class PizzaBuilder extends React.Component{
             refreshing: false,
             list:list,
             cartValue: 0,
-            checkBoxValue: false
+            checkBoxValue: false,
+            loginStatus: null
         }
     }
+
+    componentDidMount=async()=>{
+        // await this.fetchIngredients()
+        new Login().getLoginStatus().then((val)=>{
+            console.log(val)
+            this.setState({loginStatus: val})
+        }).catch((e)=>console.log(e))
+    }
+
+// Fetch Ingredients.
+
+    fetchIngredients(){
+        database()
+        .ref('/Ingredients')
+        .on('value', snapshot => {
+            console.log('User data: ', snapshot.val());
+        });
+        
+    }
+
 
 // Check Box.
 
@@ -101,16 +124,43 @@ export default class PizzaBuilder extends React.Component{
         }
       }
 
+// Logout.
+
+    logout = async() => {
+        try {
+            await AsyncStorage.removeItem('login');
+            // return true;
+            new Login().getLoginStatus().then((val)=>{
+                console.log(val)
+                this.setState({loginStatus: val})
+                ToastAndroid.show("Successfully Logout.",ToastAndroid.SHORT)
+            }).catch((e)=>console.log(e))
+        }
+        catch(e) {
+            alert(e)
+            console.log(e)
+            // return false;
+        }
+    }
+
     render(){
         return(
             <View style={{height: "100%"}}>
                 <View style={{height: "90%"}}>
                 <StatusBar barStyle = "default" hidden={true} backgroundColor = "orange"/>
                
-                <Image 
+                <ImageBackground 
                     source={require("../images/pizza.jpeg")}
                     style={{width:"100%", height: 150, resizeMode: 'stretch'}}
-                />
+                >
+                    {this.state.loginStatus == true ?
+                        <View style={{alignSelf: 'flex-end', padding:5, backgroundColor: 'white',margin: 10,borderRadius: 20}}>
+                            <TouchableOpacity onPress={()=>{this.logout()}}>
+                                <AntDesign name="logout" size={30} color="orange" />
+                            </TouchableOpacity>
+                        </View>
+                    : null}
+                </ImageBackground>
 
                 <Text style={styles.headerText}>Customize Your Pizza</Text>
                 

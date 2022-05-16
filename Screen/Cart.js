@@ -1,18 +1,24 @@
 import React from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Image, StatusBar, FlatList, RefreshControl, ScrollView, ToastAndroid } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Login from './Login';
 
 export default class Cart extends React.Component{
     constructor(props){
         super(props);
         this.state = {
             ingredients: null,
-            cartValue: 0
+            cartValue: 0,
+            loginStatus: null
         }
     }
 
     componentDidMount(){
         this.getData()
+        new Login().getLoginStatus().then((val)=>{
+            console.log(val)
+            this.setState({loginStatus: val})
+        }).catch((e)=>console.log(e))
     }
 
 // Reading Cart items.
@@ -52,6 +58,29 @@ export default class Cart extends React.Component{
         }
     }
 
+// Buy Now.
+
+    buyNow=async()=>{
+        await new Login().getLoginStatus().then((val)=>{
+            console.log(val)
+            this.setState({loginStatus: val})
+        }).catch((e)=>console.log(e))
+        if(this.state.loginStatus == true){
+            this.props.navigation.navigate('PizzaBuilder')
+            ToastAndroid.show("Your order done.",ToastAndroid.SHORT)
+            this.removeItem()
+        }else{
+            this.props.navigation.navigate('Login')
+        }
+    }
+
+// Add to My Order. 
+    
+    myOrder(){
+
+    }
+
+
     render(){
         return(
             <View>
@@ -66,7 +95,7 @@ export default class Cart extends React.Component{
                     <Text numberOfLines={3} style={{fontFamily:'PlayfairDisplay-SemiBold'}}>Ingredients : {this.state.ingredients}</Text>
                     <Text style={styles.cartTotal}>Total Price : {this.state.cartValue}*</Text>
                     <View style={{flexDirection: 'row'}}>
-                        <TouchableOpacity style={styles.cartButtonStyle} onPress={()=>{this.props.navigation.navigate('Login');}}>
+                        <TouchableOpacity style={styles.cartButtonStyle} onPress={()=>{this.buyNow()}}>
                             <View style={{flexDirection: 'row',alignItems: 'center', justifyContent:'center'}}>
                                 <Text style={styles.cartButtonText}>Buy Now</Text>
                                

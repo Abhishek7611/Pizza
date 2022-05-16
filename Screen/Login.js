@@ -1,8 +1,11 @@
 import React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Image, StatusBar, FlatList, RefreshControl, ScrollView, Platform, TextInput } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Image, StatusBar, FlatList, RefreshControl, ScrollView, Platform, TextInput, ToastAndroid } from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Feather from 'react-native-vector-icons/Feather';
 import * as Animatable from 'react-native-animatable';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import database from '@react-native-firebase/database';
+
 
 export default class Login extends React.Component{
     constructor(props){
@@ -10,6 +13,61 @@ export default class Login extends React.Component{
         this.state = {
 
         }
+    }
+
+// Storing Login Status.
+
+    storeLoginStatus = async (value) => {
+        try {
+          await AsyncStorage.setItem('login', value)
+        } catch (e) {
+          // saving error
+          console.log(e)
+          alert(e)
+        }
+      }
+
+// Get Login Status.
+
+    getLoginStatus = async () => {
+        try {
+        var value = await AsyncStorage.getItem('login')
+        value = JSON.parse(value)
+        console.log("Login Status ",value)
+        if(value != null) {
+            // value previously stored
+            console.log(value)
+            return true
+        }else{
+            console.log(value)
+            return false
+        }
+        } catch(e) {
+            console.log(e)
+            alert(e)
+        }
+    }    
+
+ // Login. 
+ 
+    login(){
+        var {user_input_email,user_input_password} = this.state;
+        database()
+        .ref('/Users/'+user_input_email)
+        .on('value', snapshot => {
+            console.log('User data: ', snapshot.val());
+            var data = snapshot.val()
+            if(data == null){
+                alert("User Not Registered.")
+            }else if(data.password == user_input_password){
+                this.props.navigation.navigate("Cart")
+                ToastAndroid.show("Successfully Login...",ToastAndroid.SHORT)
+                this.storeLoginStatus(JSON.stringify(true))
+                new PizzaBuilder().componentDidMount()
+            }else{
+                alert("Check your credentials.")
+            }
+        });
     }
 
     render(){
@@ -42,6 +100,7 @@ export default class Login extends React.Component{
                                 color: 'black',
                                 fontFamily:'PlayfairDisplay-SemiBold'
                             }]}
+                            onChangeText={user_input_email => this.setState({user_input_email})}
                         />
                     </View>
 
@@ -63,15 +122,16 @@ export default class Login extends React.Component{
                                 color: 'black',
                                 fontFamily:'PlayfairDisplay-SemiBold'
                             }]}
+                            onChangeText={user_input_password => this.setState({user_input_password})}
                         />
                     </View>
-                    <TouchableOpacity>
-                    <Text style={{color: 'orange', marginTop:15, fontFamily:'PlayfairDisplay-SemiBold'}}>Forgot password?</Text>
+                    <TouchableOpacity style={{alignSelf:'flex-end'}}>
+                    <Text style={{color: 'orange', marginTop:15, fontFamily:'PlayfairDisplay-SemiBold',}}>Forgot password?</Text>
                     </TouchableOpacity>
 
                     <View style={styles.button}>
                         <TouchableOpacity
-                            onPress={() => {}}
+                            onPress={() => {this.login()}}
                             style={[styles.signIn, {
                                 borderColor: 'orange',
                                 borderWidth: 1,
