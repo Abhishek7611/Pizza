@@ -7,6 +7,8 @@ import PizzaBuilder from './Screen/PizzaBuilder';
 import MyOrder from './Screen/MyOrder';
 import Cart from './Screen/Cart';
 import AntDesign from 'react-native-vector-icons/AntDesign';
+import Login from './Screen/Login';
+import Register from './Screen/Register';
 
 const Stack = createStackNavigator();
 const MyTheme = {
@@ -73,6 +75,16 @@ export default class App extends React.Component{
             }
             })}
             
+        />
+        <Stack.Screen
+            name="Login"
+            component={Login}
+            options={{headerShown: false}} 
+        />
+        <Stack.Screen
+            name="Register"
+            component={Register}
+            options={{headerShown: false}} 
         />
           
         </Stack.Navigator>

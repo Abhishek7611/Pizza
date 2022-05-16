@@ -66,7 +66,7 @@ export default class Cart extends React.Component{
                     <Text numberOfLines={3} style={{fontFamily:'PlayfairDisplay-SemiBold'}}>Ingredients : {this.state.ingredients}</Text>
                     <Text style={styles.cartTotal}>Total Price : {this.state.cartValue}*</Text>
                     <View style={{flexDirection: 'row'}}>
-                        <TouchableOpacity style={styles.cartButtonStyle} onPress={()=>{}}>
+                        <TouchableOpacity style={styles.cartButtonStyle} onPress={()=>{this.props.navigation.navigate('Login');}}>
                             <View style={{flexDirection: 'row',alignItems: 'center', justifyContent:'center'}}>
                                 <Text style={styles.cartButtonText}>Buy Now</Text>
                                
