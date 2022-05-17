@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Image, StatusBar, FlatList, RefreshControl, ScrollView, Platform, TextInput, ToastAndroid } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, ActivityIndicator, StatusBar, FlatList, RefreshControl, ScrollView, Platform, TextInput, ToastAndroid } from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Feather from 'react-native-vector-icons/Feather';
 import * as Animatable from 'react-native-animatable';
@@ -9,29 +9,43 @@ export default class Register extends React.Component{
     constructor(props){
         super(props);
         this.state = {
-
+            isLoading: false
         }
     }
 
 // Register.
     
     regiter(){
+        this.setState({isLoading: true})
         var {user_input_email,user_input_password} = this.state;
         console.log(user_input_email,user_input_password)
-        database()
-        .ref('/Users/'+user_input_email)
-        .set({
-            key: user_input_email,
-            password: user_input_password,
-        })
-        .then(() => {
-            console.log('Registered.');
-            ToastAndroid.show("Successfully Registered...",ToastAndroid.SHORT)
-            this.props.navigation.navigate('Login')
-        });
+        if(user_input_email == undefined || user_input_password == undefined){
+            this.setState({isLoading: false})
+            alert("Please fill details.")
+        }else{
+            database()
+            .ref('/Users/'+user_input_email)
+            .set({
+                key: user_input_email,
+                password: user_input_password,
+            })
+            .then(() => {
+                this.setState({isLoading: false})
+                console.log('Registered.');
+                ToastAndroid.show("Successfully Registered...",ToastAndroid.SHORT)
+                this.props.navigation.navigate('Login')
+            });
+        }
     }
 
     render(){
+        if(this.state.isLoading == true){
+            return(
+                <View style={[styles.loadingContainer, styles.horizontal]}>
+                    <ActivityIndicator size="large"/>
+                </View>
+            );
+        }
         return(
             <View style={styles.container}>
                 <StatusBar backgroundColor='orange' barStyle="light-content"/>
@@ -180,5 +194,14 @@ const styles = StyleSheet.create({
     textSign: {
         fontSize: 18,
         // fontWeight: 'bold'
+    },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: "center",
+    },
+    horizontal: {
+        flexDirection: "row",
+        justifyContent: "space-around",
+        padding: 10
     }
   });

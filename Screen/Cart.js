@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Image, StatusBar, FlatList, RefreshControl, ScrollView, ToastAndroid } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Login from './Login';
+import database from '@react-native-firebase/database';
 
 export default class Cart extends React.Component{
     constructor(props){
@@ -46,7 +47,7 @@ export default class Cart extends React.Component{
         try {
             await AsyncStorage.removeItem('ingredients');
             await AsyncStorage.removeItem('cartValue');
-            ToastAndroid.show("Item Deleted",ToastAndroid.SHORT)
+            // ToastAndroid.show("Item Deleted",ToastAndroid.SHORT)
             this.setState({ingredients: null})
             this.setState({cartValue: 0})
             // return true;
@@ -66,18 +67,51 @@ export default class Cart extends React.Component{
             this.setState({loginStatus: val})
         }).catch((e)=>console.log(e))
         if(this.state.loginStatus == true){
-            this.props.navigation.navigate('PizzaBuilder')
+            await this.myOrder()
+            await this.props.navigation.navigate('PizzaBuilder')
             ToastAndroid.show("Your order done.",ToastAndroid.SHORT)
-            this.removeItem()
         }else{
             this.props.navigation.navigate('Login')
         }
     }
 
+// Get user info.
+
+    getUser = async () => {
+        try {
+        var value = await AsyncStorage.getItem('user')
+        console.log("User ",value)
+        if(value != null) {
+            console.log(value)
+            return value
+        }else{
+            console.log(value)
+            return null
+        }
+        } catch(e) {
+            console.log(e)
+            alert(e)
+        }
+    }   
+
 // Add to My Order. 
     
-    myOrder(){
-
+    myOrder=async()=>{
+        var val = Math.floor(10000 + Math.random() * 90000);
+        console.log(val);
+        val = val.toString()
+        this.getUser().then(async(user)=>{
+            await database()
+            .ref('/Orders/'+user).child(val)
+            .set({
+                ingredients: this.state.ingredients,
+                price: this.state.cartValue,
+            })
+            .then(() => {
+                console.log('Data set.')
+                this.removeItem()
+            });
+        }).catch((e)=>console.log(e))
     }
 
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Image, StatusBar, FlatList, RefreshControl, ScrollView, ToastAndroid, ImageBackground } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Image, StatusBar, FlatList, RefreshControl, ActivityIndicator, ToastAndroid, ImageBackground } from 'react-native';
 import { Card } from 'react-native-elements';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import { FloatingAction } from "react-native-floating-action";
@@ -12,8 +12,8 @@ var cartValue = 0, items = [];
 
 const actions = [
     {
-      text: "Cart",
-    //   icon: require("../images/gallery.png"),
+      text: "My Cart",
+      icon: require("../images/cart.png"),
       name: "Cart",
       position: 1,
       color: "orange",
@@ -21,7 +21,7 @@ const actions = [
     },
     {
       text: "My Order",
-    //   icon: require("../images/camera.png"),
+      icon: require("../images/order.png"),
       name: "My Order",
       position: 2,
       color: "orange",
@@ -45,12 +45,19 @@ export default class PizzaBuilder extends React.Component{
             list:list,
             cartValue: 0,
             checkBoxValue: false,
-            loginStatus: null
+            loginStatus: null,
+            isLoading: false
         }
     }
 
     componentDidMount=async()=>{
         // await this.fetchIngredients()
+        this.loginStatus()
+    }
+
+// Login Status. 
+
+    loginStatus(){
         new Login().getLoginStatus().then((val)=>{
             console.log(val)
             this.setState({loginStatus: val})
@@ -63,7 +70,7 @@ export default class PizzaBuilder extends React.Component{
         database()
         .ref('/Ingredients')
         .on('value', snapshot => {
-            console.log('User data: ', snapshot.val());
+            console.log('Ingredients: ', snapshot.val());
         });
         
     }
@@ -91,6 +98,8 @@ export default class PizzaBuilder extends React.Component{
         try{
             this.setState({refreshing:true})
             // await this.fetchFiles();
+            this.loginStatus()
+            this.refreshList()
             this.setState({list: list})
             this.setState({refreshing:false})
         }catch(e){
@@ -98,16 +107,31 @@ export default class PizzaBuilder extends React.Component{
         }
     }
 
+// Refresh List.   
+    
+    refreshList(){
+        let list = this.state.list
+        for(var i=0; i<list.length; i++){
+            list[i].checked = false
+            console.log(list[i].checked)
+        }
+        console.log(list)
+        this.setState({list: list})
+        cartValue = 0
+    }
+    
 // Add to Cart.
 
     addToCart = async() =>{
         // console.log(cartValue)
         // ToastAndroid.show("Total is : "+cartValue,ToastAndroid.SHORT)
-        if(cartValue == 0){
+        await this.setState({cartValue: cartValue})
+        if(this.state.cartValue == 0){
             alert("Please choose items.")
         }else{
             await this.storeData(items.toString())
             await this.props.navigation.navigate('Cart')
+            this.refreshList()
         }
     }
 
@@ -127,23 +151,37 @@ export default class PizzaBuilder extends React.Component{
 // Logout.
 
     logout = async() => {
+        this.setState({isLoading: true})
         try {
             await AsyncStorage.removeItem('login');
+            await AsyncStorage.removeItem('user');
             // return true;
             new Login().getLoginStatus().then((val)=>{
                 console.log(val)
                 this.setState({loginStatus: val})
+                this.setState({isLoading: false})
                 ToastAndroid.show("Successfully Logout.",ToastAndroid.SHORT)
-            }).catch((e)=>console.log(e))
+            }).catch((e)=>{
+                console.log(e)
+                this.setState({isLoading: false})
+            })
         }
         catch(e) {
             alert(e)
             console.log(e)
+            this.setState({isLoading: false})
             // return false;
         }
     }
 
     render(){
+        if(this.state.isLoading == true){
+            return(
+                <View style={[styles.loadingContainer, styles.horizontal]}>
+                    <ActivityIndicator size="large"/>
+                </View>
+            );
+        }
         return(
             <View style={{height: "100%"}}>
                 <View style={{height: "90%"}}>
@@ -154,9 +192,9 @@ export default class PizzaBuilder extends React.Component{
                     style={{width:"100%", height: 150, resizeMode: 'stretch'}}
                 >
                     {this.state.loginStatus == true ?
-                        <View style={{alignSelf: 'flex-end', padding:5, backgroundColor: 'white',margin: 10,borderRadius: 20}}>
+                        <View style={{alignSelf: 'flex-end', padding:5, backgroundColor: 'white',margin: 15,borderRadius: 20}}>
                             <TouchableOpacity onPress={()=>{this.logout()}}>
-                                <AntDesign name="logout" size={30} color="orange" />
+                                <AntDesign name="logout" size={28} color="orange" />
                             </TouchableOpacity>
                         </View>
                     : null}
@@ -289,5 +327,14 @@ const styles = StyleSheet.create({
         color: 'white',  
         fontFamily:'PlayfairDisplay-Bold', 
         fontSize: 18
+    },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: "center",
+    },
+    horizontal: {
+        flexDirection: "row",
+        justifyContent: "space-around",
+        padding: 10
     }
 });

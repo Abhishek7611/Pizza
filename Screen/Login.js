@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Image, StatusBar, FlatList, RefreshControl, ScrollView, Platform, TextInput, ToastAndroid } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, ActivityIndicator, StatusBar, FlatList, RefreshControl, ScrollView, Platform, TextInput, ToastAndroid } from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Feather from 'react-native-vector-icons/Feather';
 import * as Animatable from 'react-native-animatable';
@@ -11,15 +11,16 @@ export default class Login extends React.Component{
     constructor(props){
         super(props);
         this.state = {
-
+            isLoading: false
         }
     }
 
 // Storing Login Status.
 
-    storeLoginStatus = async (value) => {
+    storeLoginStatus = async (value,user) => {
         try {
           await AsyncStorage.setItem('login', value)
+          await AsyncStorage.setItem('user',user)
         } catch (e) {
           // saving error
           console.log(e)
@@ -52,6 +53,7 @@ export default class Login extends React.Component{
  
     login(){
         var {user_input_email,user_input_password} = this.state;
+        this.setState({isLoading: true})
         database()
         .ref('/Users/'+user_input_email)
         .on('value', snapshot => {
@@ -59,18 +61,27 @@ export default class Login extends React.Component{
             var data = snapshot.val()
             if(data == null){
                 alert("User Not Registered.")
+                this.setState({isLoading: false})
             }else if(data.password == user_input_password){
                 this.props.navigation.navigate("Cart")
                 ToastAndroid.show("Successfully Login...",ToastAndroid.SHORT)
-                this.storeLoginStatus(JSON.stringify(true))
-                new PizzaBuilder().componentDidMount()
+                this.storeLoginStatus(JSON.stringify(true),user_input_email)
+                this.setState({isLoading: false})
             }else{
                 alert("Check your credentials.")
+                this.setState({isLoading: false})
             }
         });
     }
 
     render(){
+        if(this.state.isLoading == true){
+            return(
+                <View style={[styles.loadingContainer, styles.horizontal]}>
+                    <ActivityIndicator size="large"/>
+                </View>
+            );
+        }
         return(
             <View style={styles.container}>
                 <StatusBar backgroundColor='orange' barStyle="light-content"/>
@@ -221,5 +232,14 @@ const styles = StyleSheet.create({
     textSign: {
         fontSize: 18,
         // fontWeight: 'bold'
+    },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: "center",
+    },
+    horizontal: {
+        flexDirection: "row",
+        justifyContent: "space-around",
+        padding: 10
     }
   });
