@@ -4,7 +4,7 @@ import database from '@react-native-firebase/database';
 import Cart from './Cart';
 import { Card } from 'react-native-elements';
 
-var arr = []
+var arr = [], emptyArr = []
 export default class MyOrder extends React.Component{
     constructor(props){
         super(props);
@@ -60,7 +60,7 @@ export default class MyOrder extends React.Component{
         return(
             <View>
                 <StatusBar barStyle = "default" hidden={false} backgroundColor = "orange"/>
-                {this.state.loginStatus == null ?
+                {this.state.loginStatus == null || arr.length == 0 ?
                 <View style={styles.myOrderStyle}>
                      <Text style={styles.headerStyle}>Looks like you didn't shop with us, Try today. 😃</Text>
                 </View>
