@@ -118,6 +118,7 @@ export default class PizzaBuilder extends React.Component{
         console.log(list)
         this.setState({list: list})
         cartValue = 0
+        items.length = 0
     }
     
 // Add to Cart.
@@ -146,7 +147,7 @@ export default class PizzaBuilder extends React.Component{
           console.log(e)
           alert(e)
         }
-      }
+    }
 
 // Logout.
 
